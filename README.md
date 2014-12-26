@@ -20,7 +20,7 @@ To use this project, put a file called cron.py at the top level of your project:
 
 ```
 from sys import argv
-from cronutils.task_runner import run_tasks
+from cronutils import run_tasks
 
 FIVE_MINUTES = "five_minutes"
 HOURLY = "hourly"
@@ -106,7 +106,7 @@ Then, within any task you want cron to run on, you can get batched error reports
 using the error handler like so:
 
 ```
-from cronutils.error_hanlder import ErrorHandler
+from cronutils import ErrorHandler
 
 def some_daily_task():
     error_handler = ErrorHandler()
