@@ -60,7 +60,7 @@ if __name__ == "__main__":
 
 Then, add the following to your cron config, modifying MAILTO and PROJECT_PATH appropriately:
 
-'''
+```
 PROJECT_PATH="/path/to/project_name"
 MAILTO="user@example.com,user2@example.com"
 # m h  dom mon dow   command
@@ -69,7 +69,7 @@ MAILTO="user@example.com,user2@example.com"
 30 */4 * * * : four_hourly; cd $PROJECT_PATH; chronic python cron.py four_hourly
 @daily : daily; cd $PROJECT_PATH; chronic python cron.py daily
 0 2 * * 0 : weekly; cd $PROJECT_PATH; chronic python cron.py weekly
-'''
+```
 
 NOTE: if you don't want error emails, remove the MAILTO line from your config
 
@@ -118,7 +118,7 @@ def some_daily_task():
 Any errors generated in the with block will be aggregated by stacktrace, so if
 there are errors, you will get a report that looks like this:
 
-'''
+```
 ===============
 OCCURED 924 TIMES:
 IndexError('list index out of range',)
@@ -127,4 +127,4 @@ IndexError('list index out of range',)
   File "some_file.py", line 5, in do_dangerous_code
     some_list[i]
 ===============
-'''
+```
