@@ -64,6 +64,7 @@ Then, add the following to your cron config, modifying `MAILTO` and
 ```
 PROJECT_PATH="/path/to/project_name"
 MAILTO="user@example.com,user2@example.com"
+
 # m h  dom mon dow   command
 */5 * * * * : five_minutes; cd $PROJECT_PATH; chronic python cron.py five_minutes
 0 */1 * * * : hourly; cd $PROJECT_PATH; chronic python cron.py hourly
