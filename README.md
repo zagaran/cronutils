@@ -11,7 +11,7 @@ pip install cronutils
 ```
 
 For the email error reporting to work properly, this project depends on cronic:
-[http://habilis.net/cronic/]
+http://habilis.net/cronic/
 
 
 # Project Setup
@@ -58,7 +58,8 @@ if __name__ == "__main__":
 ```
 
 
-Then, add the following to your cron config, modifying MAILTO and PROJECT_PATH appropriately:
+Then, add the following to your cron config, modifying `MAILTO` and
+`PROJECT_PATH` appropriately:
 
 ```
 PROJECT_PATH="/path/to/project_name"
@@ -71,11 +72,11 @@ MAILTO="user@example.com,user2@example.com"
 0 2 * * 0 : weekly; cd $PROJECT_PATH; chronic python cron.py weekly
 ```
 
-NOTE: if you don't want error emails, remove the MAILTO line from your config
+NOTE: if you don't want error emails, remove the `MAILTO` line from your config
 
 NOTE: The above config only works if you are using Vixie cron (the default on
 ubuntu/debain).  If you are on a different version of cron, replace
-each instance of $PROJECT_PATH with the actual project path rather than setting
+each instance of `$PROJECT_PATH` with the actual project path rather than setting
 the variable at the top
 
 For any functions you want to run, import them in cron.py and put the function
