@@ -29,7 +29,7 @@ from sys import exit
 from timeit import default_timer
 from time import sleep
 
-from error_handler import BundledError
+from cronutils.error_handler import BundledError
 
 MAX_TIME_MULTIPLIER = 4
 
