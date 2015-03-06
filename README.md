@@ -13,6 +13,10 @@ pip install cronutils
 For the email error reporting to work properly, this project depends on cronic:
 http://habilis.net/cronic/
 
+On ubuntu, one can use the following set of installs:
+```
+sudo apt-get install sendmail mailutils moreutils
+```
 
 # Project Setup
 

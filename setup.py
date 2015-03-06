@@ -51,6 +51,6 @@ setup(
                  "Operating System :: Microsoft :: Windows",
                  "Operating System :: POSIX",
                  "Programming Language :: Python",
-                 "Topic :: Database",
+                 "Topic :: Utilities",
                  ],
 )
