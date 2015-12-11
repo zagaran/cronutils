@@ -24,6 +24,7 @@ THE SOFTWARE.
 @author: Zags (Benjamin Zagorsky)
 """
 
+from sys import stderr
 from traceback import format_tb
 from bdb import BdbQuit
 
@@ -87,7 +88,7 @@ class ErrorHandler():
                 output += "%s\n" % errors[:self.data_limit]
             output += "===============\n\n\n"
         if self.errors:
-            print output
+            stderr.write(output)
             raise BundledError()
 
 class NullErrorHandler():

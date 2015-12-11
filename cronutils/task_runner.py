@@ -25,7 +25,7 @@ THE SOFTWARE.
 """
 
 from multiprocessing import Process
-from sys import exit
+from sys import exit, stderr
 from timeit import default_timer
 from time import sleep
 
@@ -71,12 +71,15 @@ def run_tasks(tasks, time_limit, cron_type):
               for name, p in processes.items() if p.exitcode]
     if total_time > time_limit:
         errors.append("ERROR: cron job: over time limit")
-    print("Cron type %s completed; total time %s" % (cron_type, total_time))
-    print(str(process_times))
     if errors:
+        stderr.write("Cron type %s completed; total time %s\n" % (cron_type, total_time))
+        stderr.write("%s\n" % process_times)
         for error in errors:
-            print(error)
+            stderr.write(error)
         exit(1)
+    else:
+        print("Cron type %s completed; total time %s" % (cron_type, total_time))
+        print(str(process_times))
 
 def _run_task(function):
     """ Helper function used by run_tasks """
