@@ -33,7 +33,7 @@ from cronutils.error_handler import BundledError
 
 MAX_TIME_MULTIPLIER = 4
 
-def run_tasks(tasks, time_limit, cron_type):
+def run_tasks(tasks, time_limit, cron_type, kill_time=None):
     """
     Runs the tasks, each as their own process.  If any of the tasks take
     longer than time_limit * MAX_TIME_MULTIPLIER, they are terminated.
@@ -44,16 +44,21 @@ def run_tasks(tasks, time_limit, cron_type):
     @param tasks: a list of function pointers of the tasks to be run
     @param time_limit: the integer number of seconds to use as the time limit
     @param cron_type: a string representing this cron type; used in error logs
+    @param kill_time: a int representing time in seconds when a job is killed if
+        it hasn't finished yet; if this is None, run_tasks will use
+        time_limit * MAX_TIME_MULTIPLIER as the kill time.
     """
     # TODO: support no time limit
-    max_time = time_limit * MAX_TIME_MULTIPLIER
+    # TODO: include error message for tasks that were killed
+    if not kill_time:
+        kill_time = time_limit * MAX_TIME_MULTIPLIER
     start = default_timer()
     process_times = {}
     processes = dict((function.func_name, Process(target=_run_task, args=[function]))
                      for function in tasks)
     for p in processes.values():
         p.start()
-    for _ in range(max_time):
+    for _ in range(kill_time):
         if not any(i.is_alive() for i in processes.values()):
             break
         for name, p in processes.items():
@@ -69,7 +74,7 @@ def run_tasks(tasks, time_limit, cron_type):
     total_time = default_timer() - start
     errors = ["Error in running function '%s'\n" % name
               for name, p in processes.items() if p.exitcode]
-    if total_time > time_limit:
+    if total_time > time_limit or total_time > kill_time:
         errors.append("ERROR: cron job: over time limit")
     if errors:
         stderr.write("Cron type %s completed; total time %s\n" % (cron_type, total_time))
