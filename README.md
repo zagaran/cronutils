@@ -134,3 +134,57 @@ IndexError('list index out of range',)
     some_list[i]
 ===============
 ```
+
+# Kill Times
+
+The time limit of tasks specified in TIME_LIMITS is for emailing you about tasks that take longer than expected to run.
+If a task takes over four times the time limit (see MAX_TIME_MULTIPLIER), the process of that task is killed. You can
+specify your own custom kill time by passing in param `kill_time` to `run_tasks`. For example, here is an alternate
+`cron.py` that specifies custom kill times:
+
+```
+from sys import argv
+from cronutils import run_tasks
+
+FIVE_MINUTES = "five_minutes"
+HOURLY = "hourly"
+FOUR_HOURLY = "four_hourly"
+DAILY = "daily"
+WEEKLY = "weekly"
+
+TASKS = {
+    FIVE_MINUTES: [],
+    HOURLY: [],
+    FOUR_HOURLY: [],
+    DAILY: [],
+    WEEKLY: []
+}
+
+TIME_LIMITS = {
+    FIVE_MINUTES: 180, # 3 minutes
+    HOURLY: 3600,      # 60 minutes
+    FOUR_HOURLY: 5400, # 1.5 hours
+    DAILY: 43200,      # 12 hours
+    WEEKLY: 86400,     # 1 day
+}
+
+KILL_TIMES = {
+    FIVE_MINUTES: 300, # 5 minutes
+    HOURLY: 3600, # 1 hour
+}
+
+VALID_ARGS = [FIVE_MINUTES, HOURLY, FOUR_HOURLY, DAILY, WEEKLY]
+
+
+if __name__ == "__main__":
+    if len(argv) <= 1:
+        raise Exception("Not enough arguments to cron\n")
+    elif argv[1] in VALID_ARGS:
+        cron_type = argv[1]
+        if cron_type in KILL_TIMES:
+            run_tasks(TASKS[cron_type], TIME_LIMITS[cron_type], cron_type, KILL_TIMES[cron_type])
+        else:
+            run_tasks(TASKS[cron_type], TIME_LIMITS[cron_type], cron_type)
+    else:
+        raise Exception("Invalid argument to cron\n")
+```
