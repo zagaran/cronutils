@@ -29,7 +29,7 @@ import sys
 from setuptools import setup, find_packages
 
 if sys.version < '2.5':
-    print "ERROR: python version 2.5 or higher is required"
+    print("ERROR: python version 2.5 or higher is required")
     sys.exit(1)
 
 setup(
