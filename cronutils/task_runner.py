@@ -54,7 +54,7 @@ def run_tasks(tasks, time_limit, cron_type, kill_time=None):
         kill_time = time_limit * MAX_TIME_MULTIPLIER
     start = default_timer()
     process_times = {}
-    processes = dict((function.func_name, Process(target=_run_task, args=[function]))
+    processes = dict((function.__name__, Process(target=_run_task, args=[function]))
                      for function in tasks)
     for p in processes.values():
         p.start()
