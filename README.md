@@ -126,7 +126,7 @@ there are errors, you will get a report that looks like this:
 
 ```
 ===============
-OCCURED 924 TIMES:
+OCCURRED 924 TIMES:
 IndexError('list index out of range',)
   File "some_file.py", line 3, in some_daily_task
     do_dangerous_code()

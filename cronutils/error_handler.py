@@ -82,7 +82,7 @@ class ErrorHandler():
             output += "*** %s ***\n" % self.descriptor
         for traceback, errors in self.errors.items():
             output += "===============\n"
-            output += "OCCURED %s TIMES:\n" % len(errors)
+            output += "OCCURRED %s TIMES:\n" % len(errors)
             output += traceback
             if any(errors):
                 output += "%s\n" % errors[:self.data_limit]
