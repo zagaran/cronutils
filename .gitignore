@@ -1,5 +1,8 @@
 *.py[cod]
 
+# Miscellaneous System Files
+*.DS_Store
+
 # C extensions
 *.so
 
