@@ -76,7 +76,7 @@ class ErrorHandler():
                 self.errors[traceback] = [self.data]
         return True
     
-    def raise_errors(self):
+    def __repr__(self):
         output = ""
         if self.descriptor:
             output += "*** %s ***\n" % self.descriptor
@@ -86,10 +86,16 @@ class ErrorHandler():
             output += traceback
             if any(errors):
                 output += "%s\n" % errors[:self.data_limit]
-            output += "===============\n\n\n"
+            output += "===============\n"
+        return output
+    
+    def raise_errors(self):
+        output = self.__repr__()
         if self.errors:
             stderr.write(output)
+            stderr.write("\n\n")
             raise BundledError()
+
 
 class NullErrorHandler():
     def __init__(self, descriptor=None, data_limit=100):
