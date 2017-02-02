@@ -27,12 +27,13 @@ THE SOFTWARE.
 from sys import stderr
 from traceback import format_tb
 from bdb import BdbQuit
+from raven import Client as SentryClient
 
 # TODO: make file to generate crontabs and one that crontabs hook into.
 
 class BundledError(Exception): pass
 
-class ErrorHandler():
+class ErrorHandler(object):
     """ Bundles errors for compacted logging.
     
     Usage:
@@ -95,10 +96,36 @@ class ErrorHandler():
             stderr.write(output)
             stderr.write("\n\n")
             raise BundledError()
+        
+
+class ErrorSentry(ErrorHandler):
+    
+    def __init__(self, descriptor=None, data_limit=100, sentry_dsn=None, sentry_client_kwargs=None):
+        if not sentry_dsn:
+            raise TypeError("sentry_dsn is a required parameter.")
+        
+        if sentry_client_kwargs:
+            self.sentry_client = SentryClient(dsn=sentry_dsn, **sentry_client_kwargs)
+        else:
+            self.sentry_client = SentryClient(dsn=sentry_dsn)
+            
+        super(ErrorSentry, self).__init__(descriptor=descriptor, data_limit=data_limit)
+
+    def __exit__(self, exec_type, exec_value, traceback):
+        ret = super(ErrorSentry, self).__exit__(exec_type, exec_value, traceback)
+        
+        # Have to run some checks again to avoid reporting garbage
+        if isinstance(exec_value, KeyboardInterrupt) or isinstance(exec_value, BdbQuit):
+            return False
+        
+        if isinstance(exec_value, Exception):
+            self.sentry_client.captureException(exc_info=True)
+            
+        return ret
 
 
 class NullErrorHandler():
-    def __init__(self, descriptor=None, data_limit=100):
+    def __init__(self, descriptor=None, data_limit=100, sentry_dsn=None):
         pass
     
     def __call__(self, data=None):

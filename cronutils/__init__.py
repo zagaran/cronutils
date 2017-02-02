@@ -24,7 +24,7 @@ THE SOFTWARE.
 @author: Zags (Benjamin Zagorsky)
 """
 
-from cronutils.error_handler import ErrorHandler, null_error_handler
+from cronutils.error_handler import ErrorHandler, ErrorSentry, null_error_handler
 from cronutils.task_runner import run_tasks
 
 __all__ = (
