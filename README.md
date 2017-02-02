@@ -135,6 +135,35 @@ IndexError('list index out of range',)
 ===============
 ```
 
+# Sentry Integration
+
+The ErrorHandler also integrates with the [Sentry](https://sentry.io/)
+error management service.  You can access this by importing ErrorSentry and using
+it as you would the regular ErrorHandler.  When your code encounters an error 
+ErrorSentry will send a report to your Sentry account. You must provide it the with a
+full, valid [Sentry DSN](https://docs.sentry.io/quickstart/#configure-the-dsn).
+
+If you want to customize the Sentry client you can pass it extra keyword arguments
+at instantiation (see example below). You can also access the client directly
+if you want to further interact with it, for example by providing additional
+[context](https://docs.sentry.io/learn/context/).
+
+```
+from cronutils import ErrorSentry
+
+# Simplest instantiation
+error_sentry = ErrorSentry(sentry_dsn=MY_DSN)
+
+# Complex configuration
+error_sentry = ErrorSentry(sentry_dsn=MY_DSN,
+                           sentry_client_kwargs=SENTRY_CLIENT_KWARGS)
+
+error_sentry.sentry_client.client.user_context({
+        'email': request.user.email
+    })
+
+```
+
 # Kill Times
 
 The time limit of tasks specified in TIME_LIMITS is for emailing you about tasks that take longer than expected to run.

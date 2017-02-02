@@ -43,7 +43,7 @@ setup(
     license = "MIT",
     keywords = "cron crontab task error handling",
     url = "https://github.com/zagaran/cronutils",
-    install_requires = [],
+    install_requires = ["raven"],
     classifiers = [
                  "Development Status :: 4 - Beta",
                  "License :: OSI Approved :: MIT License",
