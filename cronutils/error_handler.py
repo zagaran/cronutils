@@ -100,9 +100,7 @@ class ErrorHandler(object):
 
 class ErrorSentry(ErrorHandler):
     
-    def __init__(self, descriptor=None, data_limit=100, sentry_dsn=None, sentry_client_kwargs=None):
-        if not sentry_dsn:
-            raise TypeError("sentry_dsn is a required parameter.")
+    def __init__(self, sentry_dsn, descriptor=None, data_limit=100, sentry_client_kwargs=None):
         
         if sentry_client_kwargs:
             self.sentry_client = SentryClient(dsn=sentry_dsn, **sentry_client_kwargs)
@@ -114,18 +112,14 @@ class ErrorSentry(ErrorHandler):
     def __exit__(self, exec_type, exec_value, traceback):
         ret = super(ErrorSentry, self).__exit__(exec_type, exec_value, traceback)
         
-        # Have to run some checks again to avoid reporting garbage
-        if isinstance(exec_value, KeyboardInterrupt) or isinstance(exec_value, BdbQuit):
-            return False
-        
-        if isinstance(exec_value, Exception):
+        if ret and isinstance(exec_value, Exception):
             self.sentry_client.captureException(exc_info=True)
             
         return ret
 
 
 class NullErrorHandler():
-    def __init__(self, descriptor=None, data_limit=100, sentry_dsn=None):
+    def __init__(self, *args, **kwargs):
         pass
     
     def __call__(self, data=None):
