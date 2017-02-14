@@ -38,7 +38,6 @@ setup(
     packages = find_packages(),
     
     author = "Zagaran, Inc.",
-    author_email = "zags at zagaran.com",
     description = "Tool designed to simplify the configuration and dispatching of tasks via cron",
     license = "MIT",
     keywords = "cron crontab task error handling",
