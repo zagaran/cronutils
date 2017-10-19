@@ -22,7 +22,7 @@ sudo apt-get install sendmail mailutils moreutils
 
 To use this project, put a file called cron.py at the top level of your project:
 
-```
+```python
 from sys import argv
 from cronutils import run_tasks
 
@@ -90,7 +90,7 @@ For any functions you want to run, import them in cron.py and put the function
 name in the appropriate list.  For example, to run the functions `backup_database`
 and `send_server_info` daily, you would do:
 
-```
+```python
 from package.path import backup_database
 from other_package.path import send_server_info
 
@@ -113,7 +113,7 @@ TASKS = {
 Then, within any task you want cron to run on, you can get batched error reports
 using the error handler like so:
 
-```
+```python
 from cronutils import ErrorHandler
 
 def some_daily_task():
@@ -151,7 +151,7 @@ at instantiation (see example below). You can also access the client directly
 if you want to further interact with it, for example by providing additional
 [context](https://docs.sentry.io/learn/context/).
 
-```
+```python
 from cronutils import ErrorSentry
 
 # Simplest instantiation
@@ -174,7 +174,7 @@ If a task takes over four times the time limit (see MAX_TIME_MULTIPLIER), the pr
 specify your own custom kill time by passing in param `kill_time` to `run_tasks`. For example, here is an alternate
 `cron.py` that specifies custom kill times:
 
-```
+```python
 from sys import argv
 from cronutils import run_tasks
 
