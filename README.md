@@ -51,13 +51,11 @@ TIME_LIMITS = {
     MONTHLY: 259200,   # 3 days
 }
 
-VALID_ARGS = [FIVE_MINUTES, HOURLY, FOUR_HOURLY, DAILY, WEEKLY, MONTHLY]
-
 
 if __name__ == "__main__":
     if len(argv) <= 1:
         raise Exception("Not enough arguments to cron\n")
-    elif argv[1] in VALID_ARGS:
+    elif argv[1] in TASKS:
         cron_type = argv[1]
         run_tasks(TASKS[cron_type], TIME_LIMITS[cron_type], cron_type)
     else:
@@ -210,13 +208,11 @@ KILL_TIMES = {
     HOURLY: 3600, # 1 hour
 }
 
-VALID_ARGS = [FIVE_MINUTES, HOURLY, FOUR_HOURLY, DAILY, WEEKLY, MONTHLY]
-
 
 if __name__ == "__main__":
     if len(argv) <= 1:
         raise Exception("Not enough arguments to cron\n")
-    elif argv[1] in VALID_ARGS:
+    elif argv[1] in TASKS:
         cron_type = argv[1]
         if cron_type in KILL_TIMES:
             run_tasks(TASKS[cron_type], TIME_LIMITS[cron_type], cron_type, KILL_TIMES[cron_type])
