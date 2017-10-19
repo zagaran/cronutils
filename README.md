@@ -31,13 +31,15 @@ HOURLY = "hourly"
 FOUR_HOURLY = "four_hourly"
 DAILY = "daily"
 WEEKLY = "weekly"
+MONTHLY = "monthly"
 
 TASKS = {
     FIVE_MINUTES: [],
     HOURLY: [],
     FOUR_HOURLY: [],
     DAILY: [],
-    WEEKLY: []
+    WEEKLY: [],
+    MONTHLY: [],
 }
 
 TIME_LIMITS = {
@@ -46,9 +48,10 @@ TIME_LIMITS = {
     FOUR_HOURLY: 5400, # 1.5 hours
     DAILY: 43200,      # 12 hours
     WEEKLY: 86400,     # 1 day
+    MONTHLY: 259200,   # 3 days
 }
 
-VALID_ARGS = [FIVE_MINUTES, HOURLY, FOUR_HOURLY, DAILY, WEEKLY]
+VALID_ARGS = [FIVE_MINUTES, HOURLY, FOUR_HOURLY, DAILY, WEEKLY, MONTHLY]
 
 
 if __name__ == "__main__":
@@ -73,8 +76,9 @@ MAILTO="user@example.com,user2@example.com"
 */5 * * * * : five_minutes; cd $PROJECT_PATH; chronic python cron.py five_minutes
 0 */1 * * * : hourly; cd $PROJECT_PATH; chronic python cron.py hourly
 30 */4 * * * : four_hourly; cd $PROJECT_PATH; chronic python cron.py four_hourly
-@daily : daily; cd $PROJECT_PATH; chronic python cron.py daily
+15 0 * * * : daily; cd $PROJECT_PATH; chronic python cron.py daily
 0 2 * * 0 : weekly; cd $PROJECT_PATH; chronic python cron.py weekly
+15 1 1 * * : monthly; cd $PROJECT_PATH; chronic python cron.py monthly
 ```
 
 NOTE: if you don't want error emails, remove the `MAILTO` line from your config
@@ -99,7 +103,8 @@ TASKS = {
     HOURLY: [],
     FOUR_HOURLY: [],
     DAILY: [backup_database, send_server_info],
-    WEEKLY: []
+    WEEKLY: [],
+    MONTHLY: [],
 }
 
 ...
@@ -180,13 +185,15 @@ HOURLY = "hourly"
 FOUR_HOURLY = "four_hourly"
 DAILY = "daily"
 WEEKLY = "weekly"
+MONTHLY = "monthly"
 
 TASKS = {
     FIVE_MINUTES: [],
     HOURLY: [],
     FOUR_HOURLY: [],
     DAILY: [],
-    WEEKLY: []
+    WEEKLY: [],
+    MONTHLY: [],
 }
 
 TIME_LIMITS = {
@@ -195,6 +202,7 @@ TIME_LIMITS = {
     FOUR_HOURLY: 5400, # 1.5 hours
     DAILY: 43200,      # 12 hours
     WEEKLY: 86400,     # 1 day
+    MONTHLY: 259200,   # 3 days
 }
 
 KILL_TIMES = {
@@ -202,7 +210,7 @@ KILL_TIMES = {
     HOURLY: 3600, # 1 hour
 }
 
-VALID_ARGS = [FIVE_MINUTES, HOURLY, FOUR_HOURLY, DAILY, WEEKLY]
+VALID_ARGS = [FIVE_MINUTES, HOURLY, FOUR_HOURLY, DAILY, WEEKLY, MONTHLY]
 
 
 if __name__ == "__main__":
