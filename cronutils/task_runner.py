@@ -58,7 +58,7 @@ def run_tasks(tasks, time_limit, cron_type, kill_time=None):
                      for function in tasks)
     for p in processes.values():
         p.start()
-    for _ in range(kill_time):
+    for _ in xrange(kill_time):
         if not any(i.is_alive() for i in processes.values()):
             break
         for name, p in processes.items():
