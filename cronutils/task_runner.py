@@ -25,11 +25,16 @@ THE SOFTWARE.
 """
 
 from multiprocessing import Process
-from sys import exit, stderr
+from sys import exit, stderr, version_info
 from timeit import default_timer
 from time import sleep
 
 from cronutils.error_handler import BundledError
+
+# In order to save people from themselves we need to make python 2's range
+# behave like xrange.
+if version_info[0] < 3:
+    range = xrange
 
 MAX_TIME_MULTIPLIER = 4
 
@@ -58,7 +63,8 @@ def run_tasks(tasks, time_limit, cron_type, kill_time=None):
                      for function in tasks)
     for p in processes.values():
         p.start()
-    for _ in xrange(kill_time):
+    
+    for _ in range(kill_time):
         if not any(i.is_alive() for i in processes.values()):
             break
         for name, p in processes.items():
@@ -66,16 +72,20 @@ def run_tasks(tasks, time_limit, cron_type, kill_time=None):
                 process_times[name] = default_timer() - start
                 p.join(0)
         sleep(1)
+    
     for name, p in processes.items():
         p.join(0)
         p.terminate()
         if name not in process_times:
             process_times[name] = default_timer() - start
+    
     total_time = default_timer() - start
     errors = ["Error in running function '%s'\n" % name
               for name, p in processes.items() if p.exitcode]
+    
     if total_time > time_limit or total_time > kill_time:
         errors.append("ERROR: cron job: over time limit")
+
     if errors:
         stderr.write("Cron type %s completed; total time %s\n" % (cron_type, total_time))
         stderr.write("%s\n" % process_times)
