@@ -53,39 +53,67 @@ def run_tasks(tasks, time_limit, cron_type, kill_time=None):
         it hasn't finished yet; if this is None, run_tasks will use
         time_limit * MAX_TIME_MULTIPLIER as the kill time.
     """
-    # TODO: support no time limit
-    # TODO: include error message for tasks that were killed
-    if not kill_time:
+    # TODO: support no time limit - implemented, untested
+    # TODO: include error message for tasks that were killed - we seem to have this? built flag, record_kills
+
+
+    # If kill time in passed in as None, leave as None.  If it is merely falsey
+    # we set it to 4 times the time limit.
+    if kill_time is None:
+        kill_time = 0
+    elif not kill_time:
         kill_time = time_limit * MAX_TIME_MULTIPLIER
-    start = default_timer()
+
+    # kill_time only evaluates as falsey if it was passed in as None. Join with
+    # None as its argument is an infinite timeout.
+    wait_or_dont_wait = None if not kill_time else 0
+    # record_kills = True if kill_time else False
+    
+    kill_list = []
     process_times = {}
-    processes = dict((function.__name__, Process(target=_run_task, args=[function]))
-                     for function in tasks)
+    start = default_timer()
+    
+    
+    # set up and start processes
+    processes = {
+        function.__name__: Process(target=_run_task, args=[function])
+        for function in tasks
+    }
     for p in processes.values():
         p.start()
     
+    # if kill time was passed in as None then the range is initialized with 0
+    # and the for-loop is skipped.
     for _ in range(kill_time):
         if not any(i.is_alive() for i in processes.values()):
             break
+        # for processes that are not running anymore join and record a run time
         for name, p in processes.items():
             if not p.is_alive() and name not in process_times:
                 process_times[name] = default_timer() - start
                 p.join(0)
         sleep(1)
     
+    # Join and terminate all the processes.
+    # Any task that ran over its limit, unless time limits were disabled, was killed.
     for name, p in processes.items():
-        p.join(0)
+        p.join(wait_or_dont_wait)
         p.terminate()
         if name not in process_times:
+            # if record_kills:
+               # kill_list.append(name)
             process_times[name] = default_timer() - start
     
+    # Based off of the exit code, compile errors
     total_time = default_timer() - start
     errors = ["Error in running function '%s'\n" % name
               for name, p in processes.items() if p.exitcode]
-    
+
+    # Based off of time limits, record kills.
     if total_time > time_limit or total_time > kill_time:
         errors.append("ERROR: cron job: over time limit")
 
+    # if there were errors write them to std err for compatibility with chronic
     if errors:
         stderr.write("Cron type %s completed; total time %s\n" % (cron_type, total_time))
         stderr.write("%s\n" % process_times)
@@ -95,6 +123,7 @@ def run_tasks(tasks, time_limit, cron_type, kill_time=None):
     else:
         print("Cron type %s completed; total time %s" % (cron_type, total_time))
         print(str(process_times))
+
 
 def _run_task(function):
     """ Helper function used by run_tasks """
