@@ -25,16 +25,12 @@ THE SOFTWARE.
 """
 
 from multiprocessing import Process
-from sys import exit, stderr, version_info
+from sys import exit, stderr
 from timeit import default_timer
 from time import sleep
+from builtins import range
 
 from cronutils.error_handler import BundledError
-
-# In order to save people from themselves we need to make python 2's range
-# behave like xrange.
-if version_info[0] < 3:
-    range = xrange
 
 MAX_TIME_MULTIPLIER = 4
 
