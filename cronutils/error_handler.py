@@ -131,8 +131,20 @@ class ErrorSentry(ErrorHandler):
 
 
 class NullErrorHandler():
+
+    """
+    The NullErrorHandler class is for debugging your code.  Is a drop in replacement for any
+    use of an ErrorHandler or ErrorSentry.  What does it do?  Absolutely nothing.  Well, it
+    maintains syntax and attribute structure so that you don't have to think about it.
+    """
+
     def __init__(self, *args, **kwargs):
-        pass
+        """ Attach attributes found in ErrorHandler and ErrorSentry, provides correct defaults. """
+        self.errors = {}
+        self.descriptor = kwargs.get('descriptor', None)
+        self.data = None
+        self.data_limit = kwargs.get('data_limit', 100)
+        self.sentry_report_limit = kwargs.get('sentry_report_limit', 0)
     
     def __call__(self, data=None):
         return self
