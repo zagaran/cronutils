@@ -99,20 +99,32 @@ class ErrorHandler(object):
         
 
 class ErrorSentry(ErrorHandler):
-    
-    def __init__(self, sentry_dsn, descriptor=None, data_limit=100, sentry_client_kwargs=None):
-        
+    """
+    Like an ErrorHandler, but reports errors to a Sentry DSN.
+    Note that sentry_report_limit is a per-stacktrace limit.
+    """
+
+    def __init__(self, sentry_dsn, descriptor=None, data_limit=100, sentry_client_kwargs=None,
+            sentry_report_limit=0
+    ):
         if sentry_client_kwargs:
             self.sentry_client = SentryClient(dsn=sentry_dsn, **sentry_client_kwargs)
         else:
             self.sentry_client = SentryClient(dsn=sentry_dsn)
             
         super(ErrorSentry, self).__init__(descriptor=descriptor, data_limit=data_limit)
+        self.sentry_report_limit = sentry_report_limit
 
     def __exit__(self, exec_type, exec_value, traceback):
         ret = super(ErrorSentry, self).__exit__(exec_type, exec_value, traceback)
-        
-        if ret and isinstance(exec_value, Exception):
+
+        # Identify the whether the report limit has been hit, handle zero/negative value behavior.
+        # (stacktrace as key is guaranteed in the above super call.)
+        report_limit_not_exceeded = (
+                sentry_report_limit < 1 or len(self.errors[traceback]) <= sentry_report_limit
+        )
+
+        if ret and isinstance(exec_value, Exception) and report_limit_not_exceeded:
             self.sentry_client.captureException(exc_info=True)
             
         return ret
