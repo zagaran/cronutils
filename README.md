@@ -166,6 +166,10 @@ error_sentry.sentry_client.client.user_context({
     })
 
 ```
+ErrorSentry also has an optional `sentry_report_limit` parameter that limits the number of times a specific error will
+be reported. Note that errors are counted based on their stack trace, so there are conditions under which you will
+still receive multiple similar error reports. Error counts are per-ErrorSentry object, they not global.
+
 
 # Kill Times
 
