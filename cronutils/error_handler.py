@@ -70,7 +70,7 @@ class ErrorHandler(object):
             return False
         # Handle and batch all other errors
         if isinstance(exec_value, Exception):
-            traceback = repr(exec_value) + "\n" + str().join(format_tb(traceback))
+            traceback = self.format_traceback_key(exec_value, traceback)
             if traceback in self.errors:
                 self.errors[traceback].append(self.data)
             else:
@@ -96,6 +96,10 @@ class ErrorHandler(object):
             stderr.write(output)
             stderr.write("\n\n")
             raise BundledError()
+
+    @staticmethod
+    def format_traceback_key(exec_value, traceback):
+        return repr(exec_value) + "\n" + str().join(format_tb(traceback))
         
 
 class ErrorSentry(ErrorHandler):
@@ -118,14 +122,16 @@ class ErrorSentry(ErrorHandler):
     def __exit__(self, exec_type, exec_value, traceback):
         ret = super(ErrorSentry, self).__exit__(exec_type, exec_value, traceback)
 
-        # Identify the whether the report limit has been hit, handle zero/negative value behavior.
-        # (stacktrace as key is guaranteed in the above super call.)
-        report_limit_not_exceeded = (
-                sentry_report_limit < 1 or len(self.errors[traceback]) <= sentry_report_limit
-        )
-
-        if ret and isinstance(exec_value, Exception) and report_limit_not_exceeded:
-            self.sentry_client.captureException(exc_info=True)
+        if ret and isinstance(exec_value, Exception):
+            # Identify the whether the report limit has been hit, handle zero/negative value behavior.
+            # (stacktrace as key is guaranteed in the above super call.)
+            traceback_key = self.format_traceback_key(exec_value, traceback)
+            report_limit_not_exceeded = (
+                    self.sentry_report_limit < 1 or
+                    len(self.errors[traceback_key]) <= self.sentry_report_limit
+            )
+            if report_limit_not_exceeded:
+                self.sentry_client.captureException(exc_info=True)
             
         return ret
 
