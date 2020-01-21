@@ -70,7 +70,7 @@ class ErrorHandler(object):
             return False
         # Handle and batch all other errors
         if isinstance(exec_value, Exception):
-            traceback = repr(exec_value) + "\n" + str().join(format_tb(traceback))
+            traceback = self.format_traceback_key(exec_value, traceback)
             if traceback in self.errors:
                 self.errors[traceback].append(self.data)
             else:
@@ -96,31 +96,61 @@ class ErrorHandler(object):
             stderr.write(output)
             stderr.write("\n\n")
             raise BundledError()
+
+    @staticmethod
+    def format_traceback_key(exec_value, traceback):
+        return repr(exec_value) + "\n" + str().join(format_tb(traceback))
         
 
 class ErrorSentry(ErrorHandler):
-    
-    def __init__(self, sentry_dsn, descriptor=None, data_limit=100, sentry_client_kwargs=None):
-        
+    """
+    Like an ErrorHandler, but reports errors to a Sentry DSN.
+    Note that sentry_report_limit is a per-stacktrace limit.
+    """
+
+    def __init__(self, sentry_dsn, descriptor=None, data_limit=100, sentry_client_kwargs=None,
+            sentry_report_limit=0
+    ):
         if sentry_client_kwargs:
             self.sentry_client = SentryClient(dsn=sentry_dsn, **sentry_client_kwargs)
         else:
             self.sentry_client = SentryClient(dsn=sentry_dsn)
             
         super(ErrorSentry, self).__init__(descriptor=descriptor, data_limit=data_limit)
+        self.sentry_report_limit = sentry_report_limit
 
     def __exit__(self, exec_type, exec_value, traceback):
         ret = super(ErrorSentry, self).__exit__(exec_type, exec_value, traceback)
-        
+
         if ret and isinstance(exec_value, Exception):
-            self.sentry_client.captureException(exc_info=True)
+            # Identify the whether the report limit has been hit, handle zero/negative value behavior.
+            # (stacktrace as key is guaranteed in the above super call.)
+            traceback_key = self.format_traceback_key(exec_value, traceback)
+            report_limit_not_exceeded = (
+                    self.sentry_report_limit < 1 or
+                    len(self.errors[traceback_key]) <= self.sentry_report_limit
+            )
+            if report_limit_not_exceeded:
+                self.sentry_client.captureException(exc_info=True)
             
         return ret
 
 
 class NullErrorHandler():
+
+    """
+    The NullErrorHandler class is for debugging your code.  Is a drop in replacement for any
+    use of an ErrorHandler or ErrorSentry.  What does it do?  Absolutely nothing.  Well, it
+    maintains syntax and attribute structure so that you don't have to think about it.
+    """
+
     def __init__(self, *args, **kwargs):
-        pass
+        """ Attach attributes found in ErrorHandler and ErrorSentry, provides correct defaults. """
+        self.errors = {}
+        self.descriptor = kwargs.get('descriptor', None)
+        self.data = None
+        self.data_limit = kwargs.get('data_limit', 100)
+        self.sentry_report_limit = kwargs.get('sentry_report_limit', 0)
     
     def __call__(self, data=None):
         return self

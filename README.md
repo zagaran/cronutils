@@ -107,6 +107,63 @@ TASKS = {
 
 ...
 ```
+# Kill Times
+
+The time limit of tasks specified in TIME_LIMITS is for emailing you about tasks that take longer than expected to run.
+If a task takes over four times the time limit (see MAX_TIME_MULTIPLIER), the process of that task is killed. You can
+specify your own custom kill time by passing in param `kill_time` to `run_tasks`. For example, here is an alternate
+`cron.py` that specifies custom kill times:
+
+```python
+from sys import argv
+from cronutils import run_tasks
+
+FIVE_MINUTES = "five_minutes"
+HOURLY = "hourly"
+FOUR_HOURLY = "four_hourly"
+DAILY = "daily"
+WEEKLY = "weekly"
+MONTHLY = "monthly"
+
+TASKS = {
+    FIVE_MINUTES: [],
+    HOURLY: [],
+    FOUR_HOURLY: [],
+    DAILY: [],
+    WEEKLY: [],
+    MONTHLY: [],
+}
+
+TIME_LIMITS = {
+    FIVE_MINUTES: 180, # 3 minutes
+    HOURLY: 3600,      # 60 minutes
+    FOUR_HOURLY: 5400, # 1.5 hours
+    DAILY: 43200,      # 12 hours
+    WEEKLY: 86400,     # 1 day
+    MONTHLY: 259200,   # 3 days
+}
+
+KILL_TIMES = {
+    FIVE_MINUTES: 300, # 5 minutes
+    HOURLY: 3600, # 1 hour
+}
+
+
+if __name__ == "__main__":
+    if len(argv) <= 1:
+        raise Exception("Not enough arguments to cron\n")
+    elif argv[1] in TASKS:
+        cron_type = argv[1]
+        if cron_type in KILL_TIMES:
+            run_tasks(TASKS[cron_type], TIME_LIMITS[cron_type], cron_type, KILL_TIMES[cron_type])
+        else:
+            run_tasks(TASKS[cron_type], TIME_LIMITS[cron_type], cron_type)
+    else:
+        raise Exception("Invalid argument to cron\n")
+```
+
+
+
 
 # Error Aggregation
 
@@ -166,58 +223,17 @@ error_sentry.sentry_client.client.user_context({
     })
 
 ```
-
-# Kill Times
-
-The time limit of tasks specified in TIME_LIMITS is for emailing you about tasks that take longer than expected to run.
-If a task takes over four times the time limit (see MAX_TIME_MULTIPLIER), the process of that task is killed. You can
-specify your own custom kill time by passing in param `kill_time` to `run_tasks`. For example, here is an alternate
-`cron.py` that specifies custom kill times:
-
-```python
-from sys import argv
-from cronutils import run_tasks
-
-FIVE_MINUTES = "five_minutes"
-HOURLY = "hourly"
-FOUR_HOURLY = "four_hourly"
-DAILY = "daily"
-WEEKLY = "weekly"
-MONTHLY = "monthly"
-
-TASKS = {
-    FIVE_MINUTES: [],
-    HOURLY: [],
-    FOUR_HOURLY: [],
-    DAILY: [],
-    WEEKLY: [],
-    MONTHLY: [],
-}
-
-TIME_LIMITS = {
-    FIVE_MINUTES: 180, # 3 minutes
-    HOURLY: 3600,      # 60 minutes
-    FOUR_HOURLY: 5400, # 1.5 hours
-    DAILY: 43200,      # 12 hours
-    WEEKLY: 86400,     # 1 day
-    MONTHLY: 259200,   # 3 days
-}
-
-KILL_TIMES = {
-    FIVE_MINUTES: 300, # 5 minutes
-    HOURLY: 3600, # 1 hour
-}
+ErrorSentry also has an optional `sentry_report_limit` parameter that limits the number of times a specific error will
+be reported. Note that errors are counted based on their stack trace, under some conditions you will still receive
+multiple similar error reports. Error counts are tracked per-ErrorSentry instance.
 
 
-if __name__ == "__main__":
-    if len(argv) <= 1:
-        raise Exception("Not enough arguments to cron\n")
-    elif argv[1] in TASKS:
-        cron_type = argv[1]
-        if cron_type in KILL_TIMES:
-            run_tasks(TASKS[cron_type], TIME_LIMITS[cron_type], cron_type, KILL_TIMES[cron_type])
-        else:
-            run_tasks(TASKS[cron_type], TIME_LIMITS[cron_type], cron_type)
-    else:
-        raise Exception("Invalid argument to cron\n")
-```
+# Debugging
+
+There is also a debugging mode: the NullErrorHandler.  This class is a drop-in replacement for all usages of the
+ErrorHandler and ErrorSentry classes.  What does it do?  Absolutely nothing.  Just change an import as follows
+and errors will be raised as if the the ErrorHandler or ErrorSentry were not present:
+
+`from cronutils.error_handler import NullErrorHandler as ErrorHandler`
+
+`from cronutils.error_handler import NullErrorHandler as ErrorSentry`
