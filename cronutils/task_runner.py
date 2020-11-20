@@ -32,9 +32,14 @@ from builtins import range
 
 from cronutils.error_handler import BundledError
 
+
 MAX_TIME_MULTIPLIER = 4
 
-def run_tasks(tasks, time_limit, cron_type, kill_time=None):
+
+class TaskError(Exception): pass
+
+
+def run_tasks(tasks, time_limit, cron_type, kill_time=None, use_stdio=True):
     """
     Runs the tasks, each as their own process.  If any of the tasks take
     longer than time_limit * MAX_TIME_MULTIPLIER, they are terminated.
@@ -48,6 +53,9 @@ def run_tasks(tasks, time_limit, cron_type, kill_time=None):
     @param kill_time: a int representing time in seconds when a job is killed if
         it hasn't finished yet; if this is None, run_tasks will use
         time_limit * MAX_TIME_MULTIPLIER as the kill time.
+    @param use_stdio: a boolean; if True (the default), errors will be
+        written to stderr and success will be written to stdout; if True,
+        errors will be raised as an exception and success will be returned
     """
     # TODO: support no time limit
     # TODO: include error message for tasks that were killed
@@ -81,18 +89,29 @@ def run_tasks(tasks, time_limit, cron_type, kill_time=None):
     
     if total_time > time_limit or total_time > kill_time:
         errors.append("ERROR: cron job: over time limit")
-
+    
     if errors:
-        stderr.write("Cron type %s completed; total time %s\n" % (cron_type, total_time))
-        stderr.write("%s\n" % process_times)
+        error_message = "Cron type %s completed with errors; total time %s\n" % (cron_type, total_time)
+        error_message += "%s\n" % process_times
         for error in errors:
-            stderr.write(error)
-        exit(1)
+            error_message += error
+            error_message += "\n"
+        if use_stdio:
+            stderr.write(error_message)
+            exit(1)
+        else:
+            raise TaskError(error_message)
     else:
-        print("Cron type %s completed; total time %s" % (cron_type, total_time))
-        print(str(process_times))
+        if use_stdio:
+            print("Cron type %s completed; total time %s" % (cron_type, total_time))
+            print(str(process_times))
+        else:
+            return total_time, process_times
+
 
 def _run_task(function):
     """ Helper function used by run_tasks """
-    try: function()
-    except BundledError: exit(1)
+    try:
+        function()
+    except BundledError:
+        exit(1)

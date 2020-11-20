@@ -154,10 +154,7 @@ if __name__ == "__main__":
         raise Exception("Not enough arguments to cron\n")
     elif argv[1] in TASKS:
         cron_type = argv[1]
-        if cron_type in KILL_TIMES:
-            run_tasks(TASKS[cron_type], TIME_LIMITS[cron_type], cron_type, KILL_TIMES[cron_type])
-        else:
-            run_tasks(TASKS[cron_type], TIME_LIMITS[cron_type], cron_type)
+        run_tasks(TASKS[cron_type], TIME_LIMITS[cron_type], cron_type, KILL_TIMES.get(cron_type))
     else:
         raise Exception("Invalid argument to cron\n")
 ```
@@ -197,6 +194,20 @@ IndexError('list index out of range',)
 
 # Sentry Integration
 
+To have `run_tasks` raise exceptions instead of logging to stderr, pass the argument
+`use_stdio=False`.  Here is a full example:
+
+```python
+if __name__ == "__main__":
+    if len(argv) <= 1:
+        raise Exception("Not enough arguments to cron\n")
+    elif argv[1] in TASKS:
+        cron_type = argv[1]
+        run_tasks(TASKS[cron_type], TIME_LIMITS[cron_type], cron_type, KILL_TIMES.get(cron_type), use_stdio=False)
+    else:
+        raise Exception("Invalid argument to cron\n")
+```
+
 The ErrorHandler also integrates with the [Sentry](https://sentry.io/)
 error management service.  You can access this by importing ErrorSentry and using
 it as you would the regular ErrorHandler.  When your code encounters an error 
@@ -226,6 +237,26 @@ error_sentry.sentry_client.client.user_context({
 ErrorSentry also has an optional `sentry_report_limit` parameter that limits the number of times a specific error will
 be reported. Note that errors are counted based on their stack trace, under some conditions you will still receive
 multiple similar error reports. Error counts are tracked per-ErrorSentry instance.
+
+
+# Django Integration
+
+The simplest way to integrate with Django is to make a management command for your cron tasks.  For example:
+
+```python
+from django.core.management import BaseCommand
+from cronutils import run_tasks
+
+class Command(BaseCommand):
+    def handle(self, *args, **options):
+        if len(args) <= 1:
+            raise Exception("Not enough arguments to cron\n")
+        elif args[1] in TASKS:
+            cron_type = args[1]
+            run_tasks(TASKS[cron_type], TIME_LIMITS[cron_type], cron_type, KILL_TIMES.get(cron_type), use_stdio=False)
+        else:
+            raise Exception("Invalid argument to cron\n")
+```
 
 
 # Debugging

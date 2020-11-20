@@ -33,6 +33,7 @@ from raven import Client as SentryClient
 
 class BundledError(Exception): pass
 
+
 class ErrorHandler(object):
     """ Bundles errors for compacted logging.
     
@@ -96,11 +97,11 @@ class ErrorHandler(object):
             stderr.write(output)
             stderr.write("\n\n")
             raise BundledError()
-
+    
     @staticmethod
     def format_traceback_key(exec_value, traceback):
         return repr(exec_value) + "\n" + str().join(format_tb(traceback))
-        
+
 
 class ErrorSentry(ErrorHandler):
     """
@@ -127,8 +128,8 @@ class ErrorSentry(ErrorHandler):
             # (stacktrace as key is guaranteed in the above super call.)
             traceback_key = self.format_traceback_key(exec_value, traceback)
             report_limit_not_exceeded = (
-                    self.sentry_report_limit < 1 or
-                    len(self.errors[traceback_key]) <= self.sentry_report_limit
+                self.sentry_report_limit < 1 or
+                len(self.errors[traceback_key]) <= self.sentry_report_limit
             )
             if report_limit_not_exceeded:
                 self.sentry_client.captureException(exc_info=True)
@@ -143,7 +144,7 @@ class NullErrorHandler():
     use of an ErrorHandler or ErrorSentry.  What does it do?  Absolutely nothing.  Well, it
     maintains syntax and attribute structure so that you don't have to think about it.
     """
-
+    
     def __init__(self, *args, **kwargs):
         """ Attach attributes found in ErrorHandler and ErrorSentry, provides correct defaults. """
         self.errors = {}
@@ -163,5 +164,6 @@ class NullErrorHandler():
     
     def raise_errors(self):
         pass
+
 
 null_error_handler = NullErrorHandler()

@@ -33,25 +33,25 @@ if sys.version < '2.5':
     sys.exit(1)
 
 setup(
-    name = "cronutils",
-    version = "0.2.3",
-    packages = find_packages(),
+    name="cronutils",
+    version="0.3.0",
+    packages=find_packages(),
     
-    author = "Zagaran, Inc.",
-    description = "Tool designed to simplify the configuration and dispatching of tasks via cron",
-    license = "MIT",
-    keywords = "cron crontab task error handling",
-    url = "https://github.com/zagaran/cronutils",
-    install_requires = [
+    author="Zagaran, Inc.",
+    description="Tool designed to simplify the configuration and dispatching of tasks via cron",
+    license="MIT",
+    keywords="cron crontab task error handling",
+    url="https://github.com/zagaran/cronutils",
+    install_requires=[
         "raven >= 6.10.0", "future == 0.18.2"
     ],
-    classifiers = [
-                 "Development Status :: 4 - Beta",
-                 "License :: OSI Approved :: MIT License",
-                 "Operating System :: MacOS :: MacOS X",
-                 "Operating System :: Microsoft :: Windows",
-                 "Operating System :: POSIX",
-                 "Programming Language :: Python",
-                 "Topic :: Utilities",
-                 ],
+    classifiers=[
+        "Development Status :: 4 - Beta",
+        "License :: OSI Approved :: MIT License",
+        "Operating System :: MacOS :: MacOS X",
+        "Operating System :: Microsoft :: Windows",
+        "Operating System :: POSIX",
+        "Programming Language :: Python",
+        "Topic :: Utilities",
+    ],
 )
