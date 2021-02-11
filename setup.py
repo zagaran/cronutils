@@ -34,7 +34,7 @@ if sys.version < '2.5':
 
 setup(
     name="cronutils",
-    version="0.3.0",
+    version="0.3.1",
     packages=find_packages(),
     
     author="Zagaran, Inc.",
@@ -43,7 +43,7 @@ setup(
     keywords="cron crontab task error handling",
     url="https://github.com/zagaran/cronutils",
     install_requires=[
-        "raven >= 6.10.0", "future == 0.18.2"
+        "raven >= 6.10.0"
     ],
     classifiers=[
         "Development Status :: 4 - Beta",

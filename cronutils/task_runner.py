@@ -28,7 +28,6 @@ from multiprocessing import Process
 from sys import exit, stderr
 from timeit import default_timer
 from time import sleep
-from builtins import range
 
 from cronutils.error_handler import BundledError
 
