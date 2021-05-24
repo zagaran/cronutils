@@ -67,12 +67,9 @@ def run_tasks(tasks, time_limit, cron_type, kill_time=None, use_stdio=True, max_
     processes = dict((function.__name__, Process(target=_run_task, args=[function]))
                      for function in tasks)
 
-    count = 0
-    for p in processes.values():
+    # If max_tasks is None, list slicing returns the whole list
+    for p in list(processes.values())[:max_tasks]:
         p.start()
-        count += 1
-        if max_tasks and count >= max_tasks:
-            break
     
     for _ in range(kill_time):
         if all(process_finished(i) for i in processes.values()):
