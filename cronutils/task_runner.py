@@ -38,7 +38,7 @@ MAX_TIME_MULTIPLIER = 4
 class TaskError(Exception): pass
 
 
-def run_tasks(tasks, time_limit, cron_type, kill_time=None, use_stdio=True):
+def run_tasks(tasks, time_limit, cron_type, kill_time=None, use_stdio=True, max_tasks=None):
     """
     Runs the tasks, each as their own process.  If any of the tasks take
     longer than time_limit * MAX_TIME_MULTIPLIER, they are terminated.
@@ -55,6 +55,8 @@ def run_tasks(tasks, time_limit, cron_type, kill_time=None, use_stdio=True):
     @param use_stdio: a boolean; if True (the default), errors will be
         written to stderr and success will be written to stdout; if True,
         errors will be raised as an exception and success will be returned
+    @param max_tasks: an int; the number of tasks to run simultaneously.
+        If None then all tasks run at once.
     """
     # TODO: support no time limit
     # TODO: include error message for tasks that were killed
@@ -64,16 +66,27 @@ def run_tasks(tasks, time_limit, cron_type, kill_time=None, use_stdio=True):
     process_times = {}
     processes = dict((function.__name__, Process(target=_run_task, args=[function]))
                      for function in tasks)
-    for p in processes.values():
+
+    # If max_tasks is None, list slicing returns the whole list
+    for p in list(processes.values())[:max_tasks]:
         p.start()
     
     for _ in range(kill_time):
-        if not any(i.is_alive() for i in processes.values()):
+        if all(process_finished(i) for i in processes.values()):
             break
         for name, p in processes.items():
-            if not p.is_alive() and name not in process_times:
+            if process_finished(p) and name not in process_times:
                 process_times[name] = default_timer() - start
                 p.join(0)
+
+        # If task counting is enabled
+        if max_tasks:
+            currently_running_tasks = sum(1 for p in processes.values() if p.is_alive())
+            required_new_tasks = max_tasks - currently_running_tasks
+            not_started_tasks = [p for p in processes.values() if not p.pid]
+            for p in not_started_tasks[:required_new_tasks]:
+                p.start()
+
         sleep(1)
     
     for name, p in processes.items():
@@ -106,6 +119,10 @@ def run_tasks(tasks, time_limit, cron_type, kill_time=None, use_stdio=True):
             print(str(process_times))
         else:
             return total_time, process_times
+
+
+def process_finished(process):
+    return process.pid and not process.is_alive()
 
 
 def _run_task(function):
