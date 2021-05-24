@@ -81,7 +81,7 @@ def run_tasks(tasks, time_limit, cron_type, kill_time=None, use_stdio=True, max_
 
         # If task counting is enabled
         if max_tasks:
-            currently_running_tasks = sum(1 for p in proccesses.values() if p.is_alive())
+            currently_running_tasks = sum(1 for p in processes.values() if p.is_alive())
             required_new_tasks = max_tasks - currently_running_tasks
             not_started_tasks = [p for p in processes.values() if not p.pid]
             for p in not_started_tasks[:required_new_tasks]:
