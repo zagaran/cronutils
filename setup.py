@@ -34,16 +34,16 @@ if sys.version < '2.5':
 
 setup(
     name="cronutils",
-    version="0.3.2",
+    version="0.3.3",
     packages=find_packages(),
-    
+
     author="Zagaran, Inc.",
     description="Tool designed to simplify the configuration and dispatching of tasks via cron",
     license="MIT",
     keywords="cron crontab task error handling",
     url="https://github.com/zagaran/cronutils",
     install_requires=[
-        "raven >= 6.10.0"
+        "sentry-sdk >= 1.5.3"
     ],
     classifiers=[
         "Development Status :: 4 - Beta",

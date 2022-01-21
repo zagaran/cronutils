@@ -27,7 +27,7 @@ THE SOFTWARE.
 from sys import stderr
 from traceback import format_tb
 from bdb import BdbQuit
-from raven import Client as SentryClient
+import sentry_sdk
 
 # TODO: make file to generate crontabs and one that crontabs hook into.
 
@@ -113,10 +113,10 @@ class ErrorSentry(ErrorHandler):
             sentry_report_limit=0
     ):
         if sentry_client_kwargs:
-            self.sentry_client = SentryClient(dsn=sentry_dsn, **sentry_client_kwargs)
+            sentry_sdk.init(sentry_dsn, **sentry_client_kwargs)
         else:
-            self.sentry_client = SentryClient(dsn=sentry_dsn)
-            
+            sentry_sdk.init(sentry_dsn)
+
         super(ErrorSentry, self).__init__(descriptor=descriptor, data_limit=data_limit)
         self.sentry_report_limit = sentry_report_limit
 
@@ -132,8 +132,8 @@ class ErrorSentry(ErrorHandler):
                 len(self.errors[traceback_key]) <= self.sentry_report_limit
             )
             if report_limit_not_exceeded:
-                self.sentry_client.captureException(exc_info=True)
-            
+                sentry_sdk.capture_exception()
+
         return ret
 
 
