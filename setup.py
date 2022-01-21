@@ -34,7 +34,7 @@ if sys.version < '2.5':
 
 setup(
     name="cronutils",
-    version="0.3.3",
+    version="1.0.0",
     packages=find_packages(),
 
     author="Zagaran, Inc.",
