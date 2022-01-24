@@ -263,14 +263,14 @@ class Command(BaseCommand):
 
 There is also a debugging mode: the NullErrorHandler.  This class is a drop-in replacement for all usages of the
 ErrorHandler and ErrorSentry classes.  What does it do?  Absolutely nothing.  Just change an import as follows
-and errors will be raised as if the the ErrorHandler or ErrorSentry were not present:
+and errors will be raised as if the ErrorHandler or ErrorSentry were not present:
 
 `from cronutils.error_handler import NullErrorHandler as ErrorHandler`
 
 `from cronutils.error_handler import NullErrorHandler as ErrorSentry`
 
 
-# Breaking Changes From 0.3.2 to 1.0.0
+# Breaking Changes From 0.3.3 to 0.3.4
 With version 1.0.0, `cronutils` has switched the underlying handler for the ErrorSentry class from `raven` to the newer 
 `sentry-sdk`. This means that any configuration of the ErrorSentry client via `sentry_client_kwargs` should be refactored
 to be passed to `sentry-sdk.init()` rather than initializing `raven`'s `SentryClient`.

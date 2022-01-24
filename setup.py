@@ -34,7 +34,7 @@ if sys.version < '2.5':
 
 setup(
     name="cronutils",
-    version="1.0.0",
+    version="0.3.4",
     packages=find_packages(),
 
     author="Zagaran, Inc.",
@@ -43,7 +43,7 @@ setup(
     keywords="cron crontab task error handling",
     url="https://github.com/zagaran/cronutils",
     install_requires=[
-        "sentry-sdk >= 1.5.3"
+        "sentry-sdk >= 1.0.0"
     ],
     classifiers=[
         "Development Status :: 4 - Beta",
