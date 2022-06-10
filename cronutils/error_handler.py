@@ -109,13 +109,13 @@ class ErrorSentry(ErrorHandler):
     Note that sentry_report_limit is a per-stacktrace limit.
     """
 
-    def __init__(self, sentry_dsn, descriptor=None, data_limit=100, sentry_client_kwargs=None,
-            sentry_report_limit=0
-    ):
-        if sentry_client_kwargs:
+    def __init__(self, sentry_dsn=None, descriptor=None, data_limit=100, sentry_client_kwargs=None,
+                 sentry_report_limit=0):
+
+        if sentry_dsn:
+            if sentry_client_kwargs is None:
+                sentry_client_kwargs = {}
             sentry_sdk.init(sentry_dsn, **sentry_client_kwargs)
-        else:
-            sentry_sdk.init(sentry_dsn)
 
         super(ErrorSentry, self).__init__(descriptor=descriptor, data_limit=data_limit)
         self.sentry_report_limit = sentry_report_limit
