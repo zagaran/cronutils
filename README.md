@@ -211,8 +211,9 @@ if __name__ == "__main__":
 The ErrorHandler also integrates with the [Sentry](https://sentry.io/)
 error management service.  You can access this by importing ErrorSentry and using
 it as you would the regular ErrorHandler.  When your code encounters an error 
-ErrorSentry will send a report to your Sentry account. You must provide it the with a
-full, valid [Sentry DSN](https://docs.sentry.io/quickstart/#configure-the-dsn).
+ErrorSentry will send a report to your Sentry account. You may provide it the with a
+full, valid [Sentry DSN](https://docs.sentry.io/quickstart/#configure-the-dsn) if you have not
+configured sentry elsewhere.
 
 If you want to customize the Sentry client you can pass it extra keyword arguments
 at instantiation (see example below). You can also access the client directly
@@ -263,8 +264,14 @@ class Command(BaseCommand):
 
 There is also a debugging mode: the NullErrorHandler.  This class is a drop-in replacement for all usages of the
 ErrorHandler and ErrorSentry classes.  What does it do?  Absolutely nothing.  Just change an import as follows
-and errors will be raised as if the the ErrorHandler or ErrorSentry were not present:
+and errors will be raised as if the ErrorHandler or ErrorSentry were not present:
 
 `from cronutils.error_handler import NullErrorHandler as ErrorHandler`
 
 `from cronutils.error_handler import NullErrorHandler as ErrorSentry`
+
+
+# Breaking Changes From 0.3 to 0.4
+With version 0.4.0, `cronutils` has switched the underlying handler for the ErrorSentry class from `raven` to the newer 
+`sentry-sdk`. This means that any configuration of the ErrorSentry client via `sentry_client_kwargs` should be refactored
+to be passed to `sentry-sdk.init()` rather than initializing `raven`'s `SentryClient`.
