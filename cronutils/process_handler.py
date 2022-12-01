@@ -13,10 +13,10 @@ def _run_task(function):
 
 
 class ProcessHandler:
-    start_time = None
-    end_time = None
+    _start_time = None
+    _end_time = None
     _killed = False
-    _stopped = False
+    stopped = False
 
     def __init__(self, function):
         self.name = function.__name__
@@ -24,36 +24,35 @@ class ProcessHandler:
         self.process = Process(target=_run_task, args=(function,))
 
     def start(self):
-        self.start_time = default_timer()
+        self._start_time = default_timer()
         self.process.start()
 
-    def stop(self, kill=False):
-        if self._stopped:
+    def stop(self):
+        if self.stopped:
             raise Exception('already stopped')
-        self.end_time = default_timer()
+        self._end_time = default_timer()
         self.process.join(0)
+        self.stopped = True
 
-        if kill:
-            self.process.terminate()
-            self._killed = True
+    def kill(self):
+        self.process.terminate()
+        self._killed = True
 
-        self._stopped = True
+    def check_completed(self):
+        if self.finished() and not self.stopped:
+            self.stop()
 
     def get_run_time(self):
-        return self.end_time - self.start_time
+        return self._end_time - self._start_time
 
     def get_run_time_message(self):
-        extra = " (Killed before finishing)" if self.killed() else ""
-        return str(self.get_run_time()) + extra
+        message = str(self.get_run_time())
+        if self._killed:
+            message += " (Killed before finishing)"
+        return message
 
     def started(self):
         return self.process.pid is not None
-
-    def stopped(self):
-        return self._stopped
-
-    def killed(self):
-        return self._killed
 
     def running(self):
         return self.process.is_alive()

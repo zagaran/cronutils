@@ -69,12 +69,11 @@ def run_tasks(tasks, time_limit, cron_type, kill_time=None, use_stdio=True, max_
         p.start()
 
     for _ in range(kill_time):
-        if all(p.stopped() for p in processes):
+        if all(p.stopped for p in processes):
             break
 
         for p in processes:
-            if p.finished() and not p.stopped():
-                p.stop()
+            p.check_completed()  # Stops processes if completed
 
         # If task counting is enabled
         if max_tasks:
@@ -87,8 +86,9 @@ def run_tasks(tasks, time_limit, cron_type, kill_time=None, use_stdio=True, max_
         sleep(1)
 
     for p in processes:
-        if p.started() and not p.stopped():
-            p.stop(kill=True)
+        if p.started() and not p.stopped:
+            p.stop()
+            p.kill()
     
     total_time = default_timer() - start
     errors = ["Error in running function '%s'\n" % p.name for p in processes if p.process.exitcode]
@@ -101,7 +101,7 @@ def run_tasks(tasks, time_limit, cron_type, kill_time=None, use_stdio=True, max_
         errors.append("The following tasks never ran: " + ', '.join(tasks_left))
 
     process_times = {
-        p.name: p.get_run_time_message() for p in processes if p.stopped()
+        p.name: p.get_run_time_message() for p in processes if p.stopped
     }
 
     if errors:
