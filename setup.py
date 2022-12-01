@@ -28,22 +28,21 @@ import sys
 
 from setuptools import setup, find_packages
 
-if sys.version < '2.5':
-    print("ERROR: python version 2.5 or higher is required")
+if sys.version < '3':
+    print("ERROR: python version 3 or higher is required")
     sys.exit(1)
 
 setup(
     name="cronutils",
-    version="0.3.2",
+    version="0.4.0",
     packages=find_packages(),
-    
     author="Zagaran, Inc.",
     description="Tool designed to simplify the configuration and dispatching of tasks via cron",
     license="MIT",
     keywords="cron crontab task error handling",
     url="https://github.com/zagaran/cronutils",
     install_requires=[
-        "raven >= 6.10.0"
+        "sentry-sdk >= 1.0.0"
     ],
     classifiers=[
         "Development Status :: 4 - Beta",
