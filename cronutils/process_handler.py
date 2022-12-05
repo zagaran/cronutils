@@ -35,6 +35,7 @@ class ProcessHandler:
         self.stopped = True
 
     def kill(self):
+        self.stop()
         self.process.terminate()
         self._killed = True
 

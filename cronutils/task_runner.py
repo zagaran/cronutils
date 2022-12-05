@@ -87,7 +87,6 @@ def run_tasks(tasks, time_limit, cron_type, kill_time=None, use_stdio=True, max_
 
     for p in processes:
         if p.started() and not p.stopped:
-            p.stop()
             p.kill()
     
     total_time = default_timer() - start
