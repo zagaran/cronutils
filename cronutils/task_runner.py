@@ -24,13 +24,11 @@ THE SOFTWARE.
 @author: Zags (Benjamin Zagorsky)
 """
 
-from multiprocessing import Process
 from sys import exit, stderr
 from timeit import default_timer
 from time import sleep
 
-from cronutils.error_handler import BundledError
-
+from cronutils.process_handler import ProcessHandler
 
 MAX_TIME_MULTIPLIER = 4
 
@@ -63,45 +61,48 @@ def run_tasks(tasks, time_limit, cron_type, kill_time=None, use_stdio=True, max_
     if not kill_time:
         kill_time = time_limit * MAX_TIME_MULTIPLIER
     start = default_timer()
-    process_times = {}
-    processes = dict((function.__name__, Process(target=_run_task, args=[function]))
-                     for function in tasks)
+
+    processes = [ProcessHandler(function) for function in tasks]
 
     # If max_tasks is None, list slicing returns the whole list
-    for p in list(processes.values())[:max_tasks]:
+    for p in processes[:max_tasks]:
         p.start()
-    
+
     for _ in range(kill_time):
-        if all(process_finished(i) for i in processes.values()):
+        if all(p.stopped for p in processes):
             break
-        for name, p in processes.items():
-            if process_finished(p) and name not in process_times:
-                process_times[name] = default_timer() - start
-                p.join(0)
+
+        for p in processes:
+            p.check_completed()  # Stops processes if completed
 
         # If task counting is enabled
         if max_tasks:
-            currently_running_tasks = sum(1 for p in processes.values() if p.is_alive())
-            required_new_tasks = max_tasks - currently_running_tasks
-            not_started_tasks = [p for p in processes.values() if not p.pid]
+            running_task_count = sum(1 for p in processes if p.running())
+            required_new_tasks = max_tasks - running_task_count
+            not_started_tasks = [p for p in processes if not p.started()]
             for p in not_started_tasks[:required_new_tasks]:
                 p.start()
 
         sleep(1)
-    
-    for name, p in processes.items():
-        p.join(0)
-        p.terminate()
-        if name not in process_times:
-            process_times[name] = default_timer() - start
+
+    for p in processes:
+        if p.started() and not p.stopped:
+            p.kill()
     
     total_time = default_timer() - start
-    errors = ["Error in running function '%s'\n" % name
-              for name, p in processes.items() if p.exitcode]
+    errors = ["Error in running function '%s'\n" % p.name for p in processes if p.process.exitcode]
     
     if total_time > time_limit or total_time > kill_time:
         errors.append("ERROR: cron job: over time limit")
-    
+
+    tasks_left = [p.name for p in processes if not p.started()]
+    if tasks_left:
+        errors.append("The following tasks never ran: " + ', '.join(tasks_left))
+
+    process_times = {
+        p.name: p.get_run_time_message() for p in processes if p.stopped
+    }
+
     if errors:
         error_message = "Cron type %s completed with errors; total time %s\n" % (cron_type, total_time)
         error_message += "%s\n" % process_times
@@ -123,11 +124,3 @@ def run_tasks(tasks, time_limit, cron_type, kill_time=None, use_stdio=True, max_
 
 def process_finished(process):
     return process.pid and not process.is_alive()
-
-
-def _run_task(function):
-    """ Helper function used by run_tasks """
-    try:
-        function()
-    except BundledError:
-        exit(1)
