@@ -113,6 +113,7 @@ def run_tasks(tasks, time_limit, cron_type, kill_time=None, use_stdio=True, max_
             error_message += "\n"
         if use_stdio:
             stderr.write(error_message)
+            stderr.write(str(process_times))
             exit(1)
         else:
             raise TaskError(error_message, process_times=process_times)
