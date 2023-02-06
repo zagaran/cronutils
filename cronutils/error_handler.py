@@ -110,7 +110,7 @@ class ErrorSentry(ErrorHandler):
     """
 
     def __init__(self, sentry_dsn=None, descriptor=None, data_limit=100, sentry_client_kwargs=None,
-                 sentry_report_limit=0):
+                 sentry_report_limit=0, auto_flush_sentry=False):
 
         if sentry_dsn:
             if sentry_client_kwargs is None:
@@ -119,6 +119,7 @@ class ErrorSentry(ErrorHandler):
 
         super(ErrorSentry, self).__init__(descriptor=descriptor, data_limit=data_limit)
         self.sentry_report_limit = sentry_report_limit
+        self.auto_flush_sentry = auto_flush_sentry
 
     def __exit__(self, exec_type, exec_value, traceback):
         ret = super(ErrorSentry, self).__exit__(exec_type, exec_value, traceback)
@@ -133,7 +134,8 @@ class ErrorSentry(ErrorHandler):
             )
             if report_limit_not_exceeded:
                 sentry_sdk.capture_exception()
-                sentry_sdk.flush()
+                if self.auto_flush_sentry:
+                    sentry_sdk.flush()
 
         return ret
 
