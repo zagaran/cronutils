@@ -33,7 +33,10 @@ from cronutils.process_handler import ProcessHandler
 MAX_TIME_MULTIPLIER = 4
 
 
-class TaskError(Exception): pass
+class TaskError(Exception):
+    def __init__(self, *args, process_times=None):
+        super().__init__(*args)
+        self.process_times = process_times
 
 
 def run_tasks(tasks, time_limit, cron_type, kill_time=None, use_stdio=True, max_tasks=None):
@@ -105,7 +108,6 @@ def run_tasks(tasks, time_limit, cron_type, kill_time=None, use_stdio=True, max_
 
     if errors:
         error_message = "Cron type %s completed with errors; total time %s\n" % (cron_type, total_time)
-        error_message += "%s\n" % process_times
         for error in errors:
             error_message += error
             error_message += "\n"
@@ -113,7 +115,7 @@ def run_tasks(tasks, time_limit, cron_type, kill_time=None, use_stdio=True, max_
             stderr.write(error_message)
             exit(1)
         else:
-            raise TaskError(error_message)
+            raise TaskError(error_message, process_times=process_times)
     else:
         if use_stdio:
             print("Cron type %s completed; total time %s" % (cron_type, total_time))

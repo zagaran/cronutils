@@ -133,6 +133,7 @@ class ErrorSentry(ErrorHandler):
             )
             if report_limit_not_exceeded:
                 sentry_sdk.capture_exception()
+                sentry_sdk.flush()
 
         return ret
 

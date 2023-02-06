@@ -34,7 +34,7 @@ if sys.version < '3':
 
 setup(
     name="cronutils",
-    version="0.4.1",
+    version="0.4.2",
     packages=find_packages(),
     author="Zagaran, Inc.",
     description="Tool designed to simplify the configuration and dispatching of tasks via cron",
