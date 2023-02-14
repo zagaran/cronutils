@@ -249,6 +249,11 @@ from django.core.management import BaseCommand
 from cronutils import run_tasks
 
 class Command(BaseCommand):
+    def add_arguments(self, parser):
+        cron_type_help = "One of the following: "
+        cron_type_help += ", ".join(TASKS.keys())
+        parser.add_argument("cron_type", type=str, help=cron_type_help)
+
     def handle(self, *args, **options):
         if len(args) <= 1:
             raise Exception("Not enough arguments to cron\n")
