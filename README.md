@@ -250,18 +250,12 @@ from cronutils import run_tasks
 
 class Command(BaseCommand):
     def add_arguments(self, parser):
-        cron_type_help = "One of the following: "
-        cron_type_help += ", ".join(TASKS.keys())
-        parser.add_argument("cron_type", type=str, help=cron_type_help)
-
+        cron_type_help = "Which frequency-group of tasks to run"
+        parser.add_argument("cron_type", type=str, choices=TASKS.keys(), help=cron_type_help)
+    
     def handle(self, *args, **options):
-        if len(args) <= 1:
-            raise Exception("Not enough arguments to cron\n")
-        elif args[1] in TASKS:
-            cron_type = args[1]
-            run_tasks(TASKS[cron_type], TIME_LIMITS[cron_type], cron_type, KILL_TIMES.get(cron_type), use_stdio=False)
-        else:
-            raise Exception("Invalid argument to cron\n")
+        cron_type = options["cron_type"]
+        run_tasks(TASKS[cron_type], TIME_LIMITS[cron_type], cron_type, KILL_TIMES.get(cron_type), use_stdio=False)
 ```
 
 
