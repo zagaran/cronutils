@@ -1,0 +1,32 @@
+[build-system]
+requires = ["setuptools>=61.2"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cronutils"
+version = "0.5.0"
+authors = [{name = "Zagaran, Inc.", email = "info@zagaran.com"}]
+license = "MIT"
+description = "Tool designed to simplify the configuration and dispatching of tasks via cron"
+keywords = ["cron", "crontab", "task", "error", "handling"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Operating System :: MacOS :: MacOS X",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: POSIX",
+    "Programming Language :: Python",
+    "Topic :: Utilities",
+]
+urls = {Homepage = "https://github.com/zagaran/cronutils"}
+requires-python = ">=3.6"
+dependencies = ["sentry-sdk >= 1.0.0"]
+
+[project.readme]
+file = "README.md"
+content-type = "text/markdown"
+
+[tool.setuptools]
+include-package-data = false
+
+[tool.setuptools.packages]
+find = {namespaces = false}
