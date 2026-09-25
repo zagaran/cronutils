@@ -134,8 +134,9 @@ class ErrorSentry(ErrorHandler):
             )
             if report_limit_not_exceeded:
                 sentry_sdk.capture_exception()
-                if self.auto_flush_sentry:
-                    sentry_sdk.flush()
+        
+        if self.auto_flush_sentry:
+            sentry_sdk.flush()
 
         return ret
 
