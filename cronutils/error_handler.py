@@ -135,6 +135,7 @@ class ErrorSentry(ErrorHandler):
             if report_limit_not_exceeded:
                 sentry_sdk.capture_exception()
         
+        # Ensure errors captured in task code are sent to sentry before the process exits
         if self.auto_flush_sentry:
             sentry_sdk.flush()
 
